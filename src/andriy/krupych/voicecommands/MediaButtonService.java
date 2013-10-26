@@ -51,8 +51,9 @@ public class MediaButtonService extends Service {
 	public void onCreate() {
 		Log.d(TAG, "onCreate");
 		super.onCreate();
-		// create singleton instance; it will be used by receiver then
+		// create singleton instances; they will be used by receiver then
 		CommandsRecognizer.create(this);
+		CommandsProcessor.create(this);
 		mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
 		mReceiverComponentName = new ComponentName(this, MediaButtonReceiver.class);
 		// we have to register receiver both in code and in manifest
