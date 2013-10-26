@@ -22,6 +22,9 @@ public class CommandsRecognizer {
 	
 	///////////////////////////////////// STATIC PART /////////////////////////////////////////
 
+	/**
+	 * LogCat tag
+	 */
 	private static final String TAG = CommandsRecognizer.class.getName();
 	
 	/**
@@ -30,12 +33,11 @@ public class CommandsRecognizer {
 	private static CommandsRecognizer mInstance;
 	
 	/**
-	 * Creates new instance if none is available
+	 * Creates new recognizer instance
 	 * @param context - required for {@link SpeechRecognizer}
 	 */
 	public static void create(Context context) {
-		if (mInstance == null)
-			mInstance = new CommandsRecognizer(context);
+		mInstance = new CommandsRecognizer(context);
 	}
 	
 	/**
@@ -129,7 +131,8 @@ public class CommandsRecognizer {
 			List<String> suggestions = results.getStringArrayList(
 					SpeechRecognizer.RESULTS_RECOGNITION);
 			log(TextUtils.join(", ", suggestions));
-			processResults(suggestions);
+			CommandsProcessor.get().process(suggestions);
+			toast(suggestions.get(0));
 		}
 
 		public void onPartialResults(Bundle partialResults) {
@@ -144,37 +147,15 @@ public class CommandsRecognizer {
 	/**
 	 * Simple toasting
 	 */
-	protected void toast(String string) {
+	private void toast(String string) {
 		Toast.makeText(mContext, string, Toast.LENGTH_SHORT).show();
 	}
 
 	/**
 	 * Simple logging
 	 */
-	protected void log(String string) {
+	private void log(String string) {
 		Log.d(TAG, string);
-	}
-	
-	/**
-	 * Simple activity start
-	 */
-	protected void startActivity(String action) {
-		mContext.startActivity(new Intent(action).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-	}
-	
-	/**
-	 * Processes recognition results
-	 * @param suggestions - list with recognized variants
-	 */
-	protected void processResults(List<String> suggestions) {
-		String result = suggestions.get(0);
-		if (result.equalsIgnoreCase("phone")) {
-			startActivity(Intent.ACTION_CALL);
-		} else if (result.equalsIgnoreCase("dial")) {
-			startActivity(Intent.ACTION_DIAL);
-		} else {
-			startActivity("android.intent.action.MUSIC_PLAYER");
-		}
 	}
 
 }
