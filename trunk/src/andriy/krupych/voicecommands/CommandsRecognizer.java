@@ -21,11 +21,6 @@ import android.widget.Toast;
 public class CommandsRecognizer {
 	
 	///////////////////////////////////// STATIC PART /////////////////////////////////////////
-
-	/**
-	 * LogCat tag
-	 */
-	private static final String TAG = CommandsRecognizer.class.getName();
 	
 	/**
 	 * Singleton instance
@@ -33,11 +28,12 @@ public class CommandsRecognizer {
 	private static CommandsRecognizer mInstance;
 	
 	/**
-	 * Creates new recognizer instance
+	 * Creates new recognizer instance.
 	 * @param context - required for {@link SpeechRecognizer}
 	 */
 	public static void create(Context context) {
-		mInstance = new CommandsRecognizer(context);
+		if (mInstance == null)
+			mInstance = new CommandsRecognizer(context);
 	}
 	
 	/**
@@ -48,7 +44,7 @@ public class CommandsRecognizer {
 	}
 	
 	//////////////////////////////////// INSTANCE PART ///////////////////////////////////////
-	
+
 	/**
 	 * Recognizer context. Used everywhere:)
 	 */
@@ -67,6 +63,7 @@ public class CommandsRecognizer {
 	 * @param context - context for {@link SpeechRecognizer} object
 	 */
 	private CommandsRecognizer(Context context) {
+		log("creating recognizer");
 		mContext = context;
 		mSpeechRecognizer = SpeechRecognizer.createSpeechRecognizer(context);
 		mSpeechRecognizer.setRecognitionListener(mRecognitionListener);
@@ -88,6 +85,7 @@ public class CommandsRecognizer {
 	 * Starts speech recording and recognition.
 	 */
 	public void start() {
+		log("starting recognizer");
 		mSpeechRecognizer.startListening(mSpeechRecognizerIntent);
 	}
 	
@@ -95,6 +93,7 @@ public class CommandsRecognizer {
 	 * Must be called if you don't want to leak service connection.
 	 */
 	public void destroy() {
+		log("destroying recognizer");
 		mSpeechRecognizer.destroy();
 	}
 
@@ -112,7 +111,7 @@ public class CommandsRecognizer {
 		}
 
 		public void onRmsChanged(float rmsdB) {
-			log("onRmsChanged " + rmsdB);
+//			log("onRmsChanged " + rmsdB);
 		}
 
 		public void onBufferReceived(byte[] buffer) {
@@ -155,7 +154,7 @@ public class CommandsRecognizer {
 	 * Simple logging
 	 */
 	private void log(String string) {
-		Log.d(TAG, string);
+		Log.d(CommandsRecognizer.class.getName(), string);
 	}
 
 }
