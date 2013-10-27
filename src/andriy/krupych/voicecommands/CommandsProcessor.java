@@ -24,11 +24,6 @@ public class CommandsProcessor {
 	///////////////////////////////////// STATIC PART ////////////////////////////////////////////
 	
 	/**
-	 * LogCat tag
-	 */
-	protected static final String TAG = CommandsProcessor.class.getName();
-	
-	/**
 	 * Singleton instance
 	 */
 	private static CommandsProcessor mInstance;
@@ -38,7 +33,8 @@ public class CommandsProcessor {
 	 * @param context - required for getting and launching apps
 	 */
 	public static void create(Context context) {
-		mInstance = new CommandsProcessor(context);
+		if (mInstance == null)
+			mInstance = new CommandsProcessor(context);
 	}
 	
 	/**
@@ -58,6 +54,16 @@ public class CommandsProcessor {
 	 * All the apps labels for command comparison
 	 */
 	private HashMap<String, ApplicationInfo> mAllApps;
+	/**
+	 * When loading all apps info, this should be false.
+	 * In this state no processing can be performed.
+	 */
+	private boolean mIsDataLoaded = false;
+	/**
+	 * Stores last suggestions for processing, while all apps info is loaded.
+	 * This data will be processed after loading has ended.
+	 */
+	private List<String> mSavedRequest = null;
 
 	/**
 	 * Simple constructor
@@ -73,17 +79,7 @@ public class CommandsProcessor {
 	 * so we better start it at the very beginning.
 	 */
 	private void loadAllApps() {
-		new Thread() {
-			public void run() {
-				PackageManager packageManager = mContext.getPackageManager();
-				List<ApplicationInfo> packages = packageManager.getInstalledApplications(
-						PackageManager.GET_META_DATA);
-		    	mAllApps = new HashMap<String, ApplicationInfo>(packages.size());
-		    	for (ApplicationInfo info : packages)
-		    		mAllApps.put(info.loadLabel(packageManager).toString(), info);
-		    	Log.d(TAG, "loaded " + mAllApps.size() + " app labels");
-			};
-		}.start();
+		new AllAppsLoaderTask().execute();
 	}
 
 	/**
@@ -93,7 +89,40 @@ public class CommandsProcessor {
 	@SuppressWarnings("unchecked")
 	protected void process(List<String> suggestions) {
 		toast(suggestions.get(0));
-		new CommandsProcessingTask().execute(suggestions);
+		if (mIsDataLoaded) new CommandsProcessingTask().execute(suggestions);
+		else mSavedRequest = suggestions;
+	}
+	
+	/**
+	 * This task loads all applications info on a worker thread.
+	 * When this process ended, it checks for a saved request
+	 * and launches process method with that request.
+	 * @author Andriy Krupych
+	 *
+	 */
+	private class AllAppsLoaderTask extends AsyncTask<Void, Void, Void> {
+
+		@Override
+		protected Void doInBackground(Void... params) {
+			PackageManager packageManager = mContext.getPackageManager();
+			List<ApplicationInfo> packages = packageManager.getInstalledApplications(
+					PackageManager.GET_META_DATA);
+	    	mAllApps = new HashMap<String, ApplicationInfo>(packages.size());
+	    	for (ApplicationInfo info : packages)
+	    		mAllApps.put(info.loadLabel(packageManager).toString(), info);
+	    	log("loaded " + mAllApps.size() + " app labels");
+	    	return null;
+		}
+		
+		@Override
+		protected void onPostExecute(Void result) {
+	    	mIsDataLoaded = true;
+			if (mSavedRequest != null) {
+				process(mSavedRequest);
+				mSavedRequest = null;
+			}
+		}
+		
 	}
 	
 	/**
@@ -150,6 +179,13 @@ public class CommandsProcessor {
 	 */
 	private void toast(String string) {
 		Toast.makeText(mContext, string, Toast.LENGTH_SHORT).show();
+	}
+
+	/**
+	 * Simple logging
+	 */
+	private void log(String string) {
+		Log.d(CommandsProcessor.class.getName(), string);
 	}
 
 }

@@ -18,12 +18,12 @@ import android.util.Log;
  * This service should be started with "startService" command.
  * @author Andriy Krupych
  */
-public class MediaButtonService extends Service {
+public class RecognitionService extends Service {
 	
 	/**
 	 * Log tag
 	 */
-	private static final String TAG = MediaButtonService.class.getName();
+	public static final String TAG = RecognitionService.class.getName();
 
 	/**
 	 * Broadcast receiver to get media button events
@@ -51,8 +51,8 @@ public class MediaButtonService extends Service {
 	public void onCreate() {
 		Log.d(TAG, "onCreate");
 		super.onCreate();
-		// create singleton instances; they will be used by receiver then
-		CommandsRecognizer.create(this);
+		// create singletons instances; they will be used by receiver then
+		CommandsRecognizer.create(getApplicationContext());
 		CommandsProcessor.create(this);
 		mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
 		mReceiverComponentName = new ComponentName(this, MediaButtonReceiver.class);

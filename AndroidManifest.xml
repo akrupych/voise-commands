@@ -32,7 +32,7 @@
             </intent-filter>
         </receiver>
 
-        <service android:name=".MediaButtonService" />
+        <service android:name=".RecognitionService" />
     </application>
 
 </manifest>
