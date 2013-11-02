@@ -12,6 +12,7 @@ public class InvisibleActivity extends Activity {
 		// start service if it's not running yet
 		startService(new Intent(this, RecognitionService.class));
 		CommandsRecognizer.get().start();
+		finish();
 	}
 
 }
