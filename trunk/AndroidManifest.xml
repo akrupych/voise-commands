@@ -26,13 +26,24 @@
             </intent-filter>
         </activity>
 
-        <receiver android:name=".MediaButtonReceiver" >
+        <receiver android:name="andriy.krupych.voicecommands.MediaButtonReceiver" >
             <intent-filter>
                 <action android:name="android.intent.action.MEDIA_BUTTON" />
             </intent-filter>
         </receiver>
 
-        <service android:name=".RecognitionService" />
+        <service android:name="andriy.krupych.voicecommands.RecognitionService" />
+
+        <activity
+            android:name="andriy.krupych.voicecommands.InvisibleActivity"
+            android:theme="@android:style/Theme.NoDisplay"
+            android:label="@string/title_activity_invisible" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>
